@@ -74,10 +74,9 @@ class ShopSet(GenericViewSet):
 
         street = Street.objects.filter(name=street_name).first()
 
-        # qs = Shop.objects.filter(city=city, street=street).all()
         qs = []
         for obj in Shop.objects.all():
-            if obj.open() == int(open):
+            if obj.open() == int(open) & obj.city.name == city & obj.street.nam == street:
                 qs.append({
                     'name': obj.name,
                     'city': obj.city.name,
@@ -87,6 +86,4 @@ class ShopSet(GenericViewSet):
                     'close_time': obj.close_time,
                     'open': open,
                 })
-        print(qs)
-        # serialized = self.get_serializer(qs, many=True)
         return Response(qs)
