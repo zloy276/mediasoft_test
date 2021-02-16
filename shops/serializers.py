@@ -15,6 +15,8 @@ class CitySerializer(serializers.ModelSerializer):
 
 
 class StreetSerializer(serializers.ModelSerializer):
+    city = CitySerializer(many=False)
+
     class Meta:
         model = Street
         fields = (
@@ -25,6 +27,9 @@ class StreetSerializer(serializers.ModelSerializer):
 
 class ShopSerializer(ModelSerializer):
     # open = serializers.SerializerMethodField()
+
+    street = StreetSerializer(many=False)
+    city = CitySerializer(many=False)
 
     class Meta:
         model = Shop

@@ -45,23 +45,22 @@ class ShopSet(GenericViewSet):
         close_time = serializer.validated_data['close_time']
         open_time = serializer.validated_data['open_time']
 
-        if City.objects.filter(name=serializer.validated_data['city']).exists:
+        city_ex = City.objects.filter(name=serializer.validated_data['city']).exists
+
+        if city_ex:
             city = City.objects.filter(name=city_name).first()
-
-            if Street.objects.filter(name=street_name, city=city).exists():
-                street = Street.objects.filter(name=street_name, city=city).first()
-            else:
-                street = Street.objects.create(name=street_name, city=city)
-
         else:
             city = City.object.create(name=city_name)
+
+        street_ex = Street.objects.filter(name=street_name, city=city).exists()
+
+        if street_ex:
+            street = Street.objects.filter(name=street_name, city=city).first()
+        else:
             street = Street.objects.create(name=street_name, city=city)
 
-        if not (Shop.objects.filter(name=name, city=city, street=street, house=house).exists()):
-            shop = Shop.objects.create(name=name, city=city, street=street, house=house, close_time=close_time,
-                                       open_time=open_time)
-        else:
-            shop = Shop.objects.filter(name=name, city=city, street=street, house=house).first()
+        shop = Shop.objects.create(name=name, city=city, street=street, house=house, close_time=close_time,
+                                   open_time=open_time)
 
         return Response({'id': shop.pk})
 
@@ -70,20 +69,7 @@ class ShopSet(GenericViewSet):
         street_name = self.request.query_params.get('street', None)
         open = self.request.query_params.get('open', None)
 
-        city = City.objects.filter(name=city_name).first()
-
-        street = Street.objects.filter(name=street_name).first()
-
-        qs = []
-        for obj in Shop.objects.all():
-            if obj.open() == int(open) & obj.city.name == city & obj.street.nam == street:
-                qs.append({
-                    'name': obj.name,
-                    'city': obj.city.name,
-                    'street': obj.street.name,
-                    'house': obj.house,
-                    'open_time': obj.open_time,
-                    'close_time': obj.close_time,
-                    'open': open,
-                })
-        return Response(qs)
+        qs = Shop.objects.filter(city__name=city_name, street__name=street_name)
+        data = [i for i in qs if i.open() == int(open)]
+        serialized = self.get_serializer(data, many=True)
+        return Response(serialized.data)
