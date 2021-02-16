@@ -26,7 +26,7 @@ class StreetSerializer(serializers.ModelSerializer):
 
 
 class ShopSerializer(ModelSerializer):
-    # open = serializers.SerializerMethodField()
+    open = serializers.SerializerMethodField()
 
     street = StreetSerializer(many=False)
     city = CitySerializer(many=False)
@@ -46,8 +46,8 @@ class ShopSerializer(ModelSerializer):
             'open',
         )
 
-    # @staticmethod
-    # def get_open(self):
-    #     if self.open_time < datetime.now().time() < self.close_time:
-    #         return 1
-    #     return 0
+    @staticmethod
+    def get_open(self):
+        if self.open_time < datetime.now().time() < self.close_time:
+            return 1
+        return 0

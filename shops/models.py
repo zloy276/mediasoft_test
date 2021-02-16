@@ -27,10 +27,5 @@ class Shop(models.Model):
     open_time = models.TimeField()
     city = models.ForeignKey(City, on_delete=CASCADE)
 
-    def open(self):
-        if self.open_time < datetime.now().time() < self.close_time:
-            return 1
-        return 0
-
     def __str__(self):
         return self.name
